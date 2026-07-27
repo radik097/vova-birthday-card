@@ -1,10 +1,18 @@
 import config from "./config.js";
-import { initConfetti, startConfetti, burstConfetti, stopConfetti } from "./confetti.js";
-import { initSparkles, stopSparkles } from "./sparkles.js";
-import { initBalloons, startBalloons, cleanupBalloons } from "./balloons.js";
-import { toggleMusic, isMusicPlaying } from "./music.js";
+import {
+    initConfetti,
+    startConfetti,
+    burstConfetti,
+    stopConfetti,
+} from "./confetti.js";
+import { initSparkles } from "./sparkles.js";
+import {
+    initBalloons,
+    startBalloons,
+    cleanupBalloons,
+} from "./balloons.js";
+import { toggleMusic } from "./music.js";
 
-// --- DOM references ---
 const card = document.getElementById("card");
 const openButton = document.getElementById("openButton");
 const replayButton = document.getElementById("replayButton");
@@ -13,40 +21,62 @@ const musicToggle = document.getElementById("musicToggle");
 const musicIcon = musicToggle?.querySelector(".music-icon");
 const wishCounter = document.getElementById("wishCounter");
 
-// --- State ---
 let isOpen = false;
 let wishesRevealed = 0;
+let wishTimers = [];
+let balloonStartTimer = null;
+let replayTimer = null;
 
-// --- Text helpers ---
 function setText(selector, value) {
     const node = document.querySelector(selector);
-    if (node && value) node.textContent = value;
+
+    if (node && typeof value === "string") {
+        node.textContent = value;
+    }
+}
+
+function clearCardTimers() {
+    wishTimers.forEach((timerId) => clearTimeout(timerId));
+    wishTimers = [];
+
+    clearTimeout(balloonStartTimer);
+    clearTimeout(replayTimer);
+
+    balloonStartTimer = null;
+    replayTimer = null;
 }
 
 function applyConfig() {
     document.title = config.headline || document.title;
+
     setText('[data-card="closedTitle"]', config.closedTitle || config.name);
     setText('[data-card="closedSubtitle"]', config.closedSubtitle);
     setText('[data-card="openButton"]', config.openButton);
     setText('[data-card="headline"]', config.headline);
     setText('[data-card="lead"]', config.lead);
     setText('[data-card="signature"]', config.signature);
-    if (replayButton && config.replayButton) replayButton.textContent = config.replayButton;
 
-    const wishes = document.querySelector('[data-card="wishes"]');
-    if (wishes) {
-        wishes.innerHTML = "";
-        (config.wishes || []).forEach((wish, index) => {
-            const item = document.createElement("li");
-            item.textContent = wish;
-            item.style.setProperty("--wish-index", index);
-            wishes.appendChild(item);
-        });
+    if (replayButton && config.replayButton) {
+        replayButton.textContent = config.replayButton;
     }
 
-    openButton.setAttribute(
+    const wishes = document.querySelector('[data-card="wishes"]');
+
+    if (wishes) {
+        wishes.replaceChildren();
+
+        for (const wish of config.wishes || []) {
+            const item = document.createElement("li");
+            item.textContent = wish;
+            wishes.appendChild(item);
+        }
+    }
+
+    openButton?.setAttribute(
         "aria-label",
-        `${config.openButton || "Открыть открытку"}: ${config.headline || ""}`.trim()
+        `${config.openButton || "Открыть открытку"}: ${
+            config.headline || ""
+        }`.trim()
     );
 
     updateWishCounter();
@@ -54,44 +84,66 @@ function applyConfig() {
 
 function updateWishCounter() {
     const total = config.wishes?.length || 0;
+
     if (wishCounter) {
         wishCounter.textContent = `${wishesRevealed}/${total}`;
     }
 }
 
-// --- Card Logic ---
 function openCard() {
-    if (isOpen) return;
+    if (isOpen || !card) return;
+
+    clearCardTimers();
+
     isOpen = true;
     card.classList.add("is-open");
+    openButton?.setAttribute("aria-expanded", "true");
+
     startConfetti(7200);
 
-    // Reveal wishes with burst
     const wishItems = document.querySelectorAll(".wishes li");
     wishesRevealed = 0;
+    updateWishCounter();
+
     wishItems.forEach((item, index) => {
-        const revealDelay = 520 + index * 170;
-        setTimeout(() => {
+        const timerId = setTimeout(() => {
+            if (!isOpen) return;
+
             item.classList.add("revealed");
             wishesRevealed = index + 1;
             updateWishCounter();
-            // Burst confetti on each wish reveal
-            if (isOpen) {
-                const rect = item.getBoundingClientRect();
-                burstConfetti(rect.left + rect.width / 2, rect.top + rect.height / 2, 20);
-            }
-        }, revealDelay);
+
+            const rect = item.getBoundingClientRect();
+
+            burstConfetti(
+                rect.left + rect.width / 2,
+                rect.top + rect.height / 2,
+                20
+            );
+        }, 520 + index * 170);
+
+        wishTimers.push(timerId);
     });
 
-    // Start balloons after a delay
-    setTimeout(startBalloons, 1200);
+    balloonStartTimer = setTimeout(() => {
+        if (isOpen) {
+            startBalloons();
+        }
+    }, 1200);
 }
 
 function replayCard() {
+    if (!card) return;
+
+    clearCardTimers();
+
     isOpen = false;
     wishesRevealed = 0;
-    updateWishCounter();
+
     card.classList.remove("is-open");
+    openButton?.setAttribute("aria-expanded", "false");
+
+    updateWishCounter();
     cleanupBalloons();
     stopConfetti();
 
@@ -99,80 +151,119 @@ function replayCard() {
         item.classList.remove("revealed");
     });
 
-    setTimeout(openCard, 260);
+    replayTimer = setTimeout(openCard, 260);
 }
 
-// --- Gift Box ---
-function handleGiftClick(e) {
-    const rect = giftBox.getBoundingClientRect();
-    const cx = rect.left + rect.width / 2;
-    const cy = rect.top + rect.height / 2;
+function handleGiftClick() {
+    if (!giftBox) return;
 
-    burstConfetti(cx, cy, 100);
+    const rect = giftBox.getBoundingClientRect();
+
+    burstConfetti(
+        rect.left + rect.width / 2,
+        rect.top + rect.height / 2,
+        100
+    );
+
     giftBox.classList.add("gift-opened");
 
-    // Remove gift after animation
     setTimeout(() => {
-        giftBox.style.display = "none";
+        giftBox.hidden = true;
     }, 1200);
 
-    // Also open card if not already
-    if (!isOpen) {
-        openCard();
-    }
+    openCard();
 }
 
-// --- Music ---
 function handleMusicToggle() {
+    if (!musicToggle) return;
+
     const nowPlaying = toggleMusic();
+
     if (musicIcon) {
         musicIcon.textContent = nowPlaying ? "🔊" : "🔇";
     }
+
     musicToggle.setAttribute(
         "aria-label",
         nowPlaying ? "Выключить музыку" : "Включить музыку"
     );
+
+    musicToggle.setAttribute("aria-pressed", String(nowPlaying));
 }
 
-// --- Click burst (anywhere after card is open) ---
-function handleSceneClick(e) {
+function handleSceneClick(event) {
     if (!isOpen) return;
-    // Don't trigger on buttons
-    if (e.target.closest("button")) return;
-    if (e.target.closest(".card__cover")) return;
-    if (e.target.closest(".gift-box")) return;
-    if (e.target.closest(".music-toggle")) return;
+    if (!(event.target instanceof Element)) return;
 
-    burstConfetti(e.clientX, e.clientY, 40);
+    if (
+        event.target.closest(
+            "button, .card__cover, .gift-box, .music-toggle"
+        )
+    ) {
+        return;
+    }
+
+    burstConfetti(event.clientX, event.clientY, 40);
 }
 
-// --- Keyboard shortcuts ---
-function handleKeydown(e) {
-    const key = e.key.toLowerCase();
-    if (key === "o" && !isOpen) {
+function handleKeydown(event) {
+    const target = event.target;
+    const key = event.key.toLowerCase();
+
+    if (
+        target instanceof HTMLInputElement ||
+        target instanceof HTMLTextAreaElement ||
+        target instanceof HTMLSelectElement ||
+        target?.isContentEditable
+    ) {
+        return;
+    }
+
+    if (
+        openButton === document.activeElement &&
+        (event.key === "Enter" || event.key === " ")
+    ) {
+        event.preventDefault();
+        openCard();
+        return;
+    }
+
+    if (key === "o") {
         openCard();
     } else if (key === "r") {
         replayCard();
     } else if (key === "c") {
-        burstConfetti(window.innerWidth / 2, window.innerHeight / 2, 60);
+        burstConfetti(
+            window.innerWidth / 2,
+            window.innerHeight / 2,
+            60
+        );
     } else if (key === "m") {
         handleMusicToggle();
-    } else if (key === " ") {
-        e.preventDefault();
-        openCard();
     }
 }
 
-// --- Init ---
 function init() {
+    if (
+        !card ||
+        !openButton ||
+        !replayButton ||
+        !giftBox ||
+        !musicToggle
+    ) {
+        console.error("Не найдены обязательные элементы открытки.");
+        return;
+    }
+
     applyConfig();
 
-    // Init canvases
+    openButton.setAttribute("aria-expanded", "false");
+    musicToggle.setAttribute("aria-pressed", "false");
+
     initConfetti(document.querySelector(".confetti"));
     initSparkles(document.querySelector(".sparkle-canvas"));
     initBalloons(document.getElementById("balloonsContainer"));
 
-    // Events
     openButton.addEventListener("click", openCard);
     replayButton.addEventListener("click", replayCard);
     giftBox.addEventListener("click", handleGiftClick);
@@ -181,9 +272,8 @@ function init() {
     document.addEventListener("click", handleSceneClick);
     document.addEventListener("keydown", handleKeydown);
 
-    // Auto-open from query param
     if (new URLSearchParams(window.location.search).get("open") === "1") {
-        setTimeout(openCard, 250);
+        replayTimer = setTimeout(openCard, 250);
     }
 }
 
