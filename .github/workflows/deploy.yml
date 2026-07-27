@@ -3,7 +3,7 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches:
-      - master
+      - main
 
 permissions:
   contents: read
@@ -37,6 +37,9 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Copy .nojekyll
+        run: cp .nojekyll dist/
+
       - name: Setup Pages
         uses: actions/configure-pages@v4
 
@@ -48,6 +51,3 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-</｜｜DSML｜｜parameter>
-</｜｜DSML｜｜invoke>
-</｜｜DSML｜｜tool_calls>
