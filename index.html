@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="ru">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Красивая анимированная поздравительная открытка для Вовы." />
+  <title>Вова, с днем рождения!</title>
+  <link rel="preload" href="assets/cars-party-bg.png" as="image" />
+  <link rel="stylesheet" href="/src/styles.css" />
+</head>
+
+<body>
+  <main class="scene" aria-label="Поздравительная открытка">
+    <div class="bg" aria-hidden="true"></div>
+    <div class="shade" aria-hidden="true"></div>
+    <canvas class="confetti" aria-hidden="true"></canvas>
+    <canvas class="sparkle-canvas" aria-hidden="true"></canvas>
+
+    <section class="stage" aria-live="polite">
+      <div class="speed-lines" aria-hidden="true">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+
+      <div class="card" id="card">
+        <div class="card__inside">
+          <div class="inside-panel">
+            <p class="small">VIP Birthday Night</p>
+            <h1 data-card="headline">Вова, с днем рождения!</h1>
+            <p class="lead" data-card="lead"></p>
+            <ul class="wishes" data-card="wishes"></ul>
+            <p class="signature" data-card="signature"></p>
+            <div class="card-actions">
+              <button class="ghost-button" type="button" id="replayButton">
+                Повторить открытие
+              </button>
+              <span class="wish-counter" id="wishCounter">0/0</span>
+            </div>
+          </div>
+        </div>
+
+        <button class="card__cover" type="button" id="openButton">
+          <span class="cover__stripe"></span>
+          <span class="cover__shine"></span>
+          <span class="cover__content">
+            <span class="cover__label">Birthday Card</span>
+            <strong data-card="closedTitle">Вова</strong>
+            <span data-card="closedSubtitle">твой день, твой стиль</span>
+          </span>
+          <span class="seal" aria-hidden="true">
+            <span>V</span>
+          </span>
+          <span class="open-text" data-card="openButton">Открыть открытку</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Balloons container -->
+    <div class="balloons-container" id="balloonsContainer" aria-hidden="true"></div>
+
+    <!-- Gift box -->
+    <button class="gift-box" id="giftBox" aria-label="Подарок" title="Нажми, чтобы открыть подарок!">
+      <span class="gift-lid">🎁</span>
+    </button>
+
+    <!-- Music toggle -->
+    <button class="music-toggle" id="musicToggle" aria-label="Включить музыку" title="Музыка">
+      <span class="music-icon">🔇</span>
+    </button>
+  </main>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+
+</html>
