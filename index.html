@@ -33,37 +33,31 @@
             <ul class="wishes" data-card="wishes"></ul>
             <p class="signature" data-card="signature"></p>
             <div class="card-actions">
-              <button class="ghost-button" type="button" id="replayButton">
-                Повторить открытие
-              </button>
+              <button class="ghost-button" type="button" id="replayButton">Повторить открытие</button>
               <span class="wish-counter" id="wishCounter">0/0</span>
             </div>
+          </div>
 
-            <button class="card__cover" type="button" id="openButton">
-              <span class="cover__stripe"></span>
-              <span class="cover__shine"></span>
-              <span class="cover__content">
-                <span class="cover__label">Birthday Card</span>
-                <strong data-card="closedTitle">Вова</strong>
-                <span data-card="closedSubtitle">твой день, твой стиль</span>
-                <span class="seal" aria-hidden="true">
-                  <span>V</span>
-                  <span class="open-text" data-card="openButton">Открыть открытку</span>
-            </button>
+          <div class="card__cover" role="button" tabindex="0" id="openButton">
+            <span class="cover__stripe"></span>
+            <span class="cover__shine"></span>
+            <span class="cover__content">
+              <span class="cover__label">Birthday Card</span>
+              <strong data-card="closedTitle">Вова</strong>
+              <span data-card="closedSubtitle">твой день, твой стиль</span>
+              <span class="seal" aria-hidden="true"><span>V</span>
+                <span class="open-text" data-card="openButton">Открыть открытку</span>
           </div>
     </section>
 
-    <!-- Balloons container -->
     <div class="balloons-container" id="balloonsContainer" aria-hidden="true"></div>
 
-    <!-- Gift box -->
     <button class="gift-box" id="giftBox" aria-label="Подарок" title="Нажми, чтобы открыть подарок!">
-      <span class="gift-lid">🎁</span>
+      <span class="gift-lid">&#127873;</span>
     </button>
 
-    <!-- Music toggle -->
     <button class="music-toggle" id="musicToggle" aria-label="Включить музыку" title="Музыка">
-      <span class="music-icon">🔇</span>
+      <span class="music-icon">&#128263;</span>
     </button>
   </main>
 
