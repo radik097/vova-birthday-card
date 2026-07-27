@@ -6,6 +6,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="description" content="Красивая анимированная поздравительная открытка для Вовы." />
   <title>Вова, с днем рождения!</title>
+  <link rel="stylesheet" href="./src/styles.css" />
+  <link rel="preload" href="./assets/cars-party-bg.png" as="image" />
 </head>
 
 <body>
@@ -36,20 +38,19 @@
               </button>
               <span class="wish-counter" id="wishCounter">0/0</span>
             </div>
-          </div>
 
-          <button class="card__cover" type="button" id="openButton">
-            <span class="cover__stripe"></span>
-            <span class="cover__shine"></span>
-            <span class="cover__content">
-              <span class="cover__label">Birthday Card</span>
-              <strong data-card="closedTitle">Вова</strong>
-              <span data-card="closedSubtitle">твой день, твой стиль</span>
-              <span class="seal" aria-hidden="true">
-                <span>V</span>
-                <span class="open-text" data-card="openButton">Открыть открытку</span>
-          </button>
-        </div>
+            <button class="card__cover" type="button" id="openButton">
+              <span class="cover__stripe"></span>
+              <span class="cover__shine"></span>
+              <span class="cover__content">
+                <span class="cover__label">Birthday Card</span>
+                <strong data-card="closedTitle">Вова</strong>
+                <span data-card="closedSubtitle">твой день, твой стиль</span>
+                <span class="seal" aria-hidden="true">
+                  <span>V</span>
+                  <span class="open-text" data-card="openButton">Открыть открытку</span>
+            </button>
+          </div>
     </section>
 
     <!-- Balloons container -->

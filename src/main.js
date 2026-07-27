@@ -1,4 +1,3 @@
-import "./styles.css";
 import config from "./config.js";
 import { initConfetti, startConfetti, burstConfetti, stopConfetti } from "./confetti.js";
 import { initSparkles, stopSparkles } from "./sparkles.js";
